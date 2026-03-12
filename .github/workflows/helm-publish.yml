@@ -29,6 +29,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
       # Cria o branch gh-pages se não existir (chart-releaser exige que exista)
       - name: Ensure gh-pages branch exists
         run: |
