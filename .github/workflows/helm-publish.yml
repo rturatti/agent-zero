@@ -42,7 +42,8 @@ jobs:
             git checkout --orphan gh-pages
             git reset --hard
             printf 'apiVersion: v1\nentries: {}\ngenerated: "%s"\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > index.yaml
-            git add index.yaml
+            touch .nojekyll
+            git add index.yaml .nojekyll
             git commit -m "chore: initialize gh-pages for Helm chart repo"
             git push origin gh-pages
             git checkout "${{ github.ref_name }}"
@@ -60,6 +61,16 @@ jobs:
           skip_existing: true
         env:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # .nojekyll desativa o Jekyll para o GitHub Pages servir index.yaml e .tgz como estáticos
+      - name: Ensure .nojekyll on gh-pages
+        run: |
+          git fetch origin gh-pages:gh-pages
+          git checkout gh-pages
+          touch .nojekyll
+          git add .nojekyll
+          git diff --staged --quiet || (git commit -m "chore: add .nojekyll for static file serving" && git push origin gh-pages)
+          git checkout "${{ github.ref_name }}"
 
       # Coloca artifacthub-repo.yml na raiz de gh-pages para o Artifact Hub (Verified publisher)
       - name: Deploy artifacthub-repo.yml to gh-pages
