@@ -62,14 +62,20 @@ jobs:
         env:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # .nojekyll desativa o Jekyll para o GitHub Pages servir index.yaml e .tgz como estáticos
-      - name: Ensure .nojekyll on gh-pages
+      # .nojekyll + index.html: desativa Jekyll e evita 404 na URL raiz
+      - name: Ensure .nojekyll and index.html on gh-pages
         run: |
+          OWNER="${GITHUB_REPOSITORY%%/*}"
+          REPO="${GITHUB_REPOSITORY#*/}"
+          BASE_URL="https://${OWNER}.github.io/${REPO}"
           git fetch origin gh-pages:gh-pages
           git checkout gh-pages
           touch .nojekyll
-          git add .nojekyll
-          git diff --staged --quiet || (git commit -m "chore: add .nojekyll for static file serving" && git push origin gh-pages)
+          echo '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Helm chart repo</title></head><body><h1>Helm chart repository</h1><p><a href="index.yaml">index.yaml</a></p><pre>helm repo add agent-zero '"$BASE_URL"'
+helm repo update
+helm install agent-zero agent-zero/agent-zero</pre></body></html>' > index.html
+          git add .nojekyll index.html
+          git diff --staged --quiet || (git commit -m "chore: add .nojekyll and index.html for GitHub Pages" && git push origin gh-pages)
           git checkout "${{ github.ref_name }}"
 
       # Coloca artifacthub-repo.yml na raiz de gh-pages para o Artifact Hub (Verified publisher)
