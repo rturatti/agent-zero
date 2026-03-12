@@ -7,10 +7,12 @@ memory/**
 instruments/**
 knowledge/custom/**
 
-# Logs, tmp, usr
+# Logs, tmp, usr, docs
 logs/*
 tmp/*
 usr/*
+docs/
+doc/
 
 
 # Keep .gitkeep markers anywhere

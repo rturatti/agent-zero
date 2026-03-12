@@ -66,6 +66,18 @@ docker run -p 50001:80 agent0ai/agent-zero
 # Visit http://localhost:50001 to start
 ```
 
+### Kubernetes (Helm)
+
+Se você usa Kubernetes, pode instalar o Agent Zero com [Helm](https://helm.sh/). Após configurar o [repositório Helm](https://github.com/agent0ai/agent-zero#publicação-do-chart), use:
+
+```bash
+helm repo add agent-zero https://agent0ai.github.io/agent-zero
+helm repo update
+helm install agent-zero agent-zero/agent-zero
+```
+
+Detalhes em [Instalação com Helm](./docs/setup/helm.md).
+
 
 # 💡 Key Features
 

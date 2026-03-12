@@ -1,0 +1,9 @@
+# Metadados do repositório para o Artifact Hub.
+# - Para "Verified publisher": após adicionar o repo em https://artifacthub.io/control-panel/repositories,
+#   copie o Repository ID (UUID) do cartão do repositório e substitua o valor abaixo em repositoryID.
+# - Este arquivo deve ser servido na mesma URL do repositório Helm (junto ao index.yaml).
+#   O workflow helm-publish copia este arquivo para a raiz da branch gh-pages.
+# Ver: https://artifacthub.io/docs/topics/repositories/#verified-publisher
+
+# Substitua pelo UUID exibido no painel do Artifact Hub após adicionar o repositório:
+repositoryID: ""

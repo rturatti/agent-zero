@@ -1,0 +1,135 @@
+# Default values for agent-zero.
+# See https://github.com/agent0ai/agent-zero/tree/main/helm/agent-zero
+
+# -- Image repository and tag (uses official Agent Zero image)
+image:
+  repository: agent0ai/agent-zero
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+# -- Override image with digest for reproducible deployments
+# imageDigest: sha256:...
+
+# -- Number of replicas (app is stateful; 1 is recommended)
+replicaCount: 1
+
+# -- Container port (web UI runs on 80 in the image)
+containerPort: 80
+
+# -- Service configuration
+service:
+  type: ClusterIP
+  port: 80
+  # -- Optional: expose SSH (22) or tunnel API (55520) by uncommenting
+  # extraPorts: []
+  #   - name: ssh
+  #     port: 22
+  #     targetPort: 22
+
+# -- Ingress for external access (optional)
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: agent-zero.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+# -- Persistence for usr/ (settings, workdir, plugins, uploads)
+persistence:
+  enabled: true
+  storageClass: ""
+  size: 10Gi
+  # -- SubPath when using existing PVC (optional)
+  subPath: ""
+  # -- Optional: use existing PVC name (if set, size and storageClass are ignored)
+  existingClaim: ""
+
+# -- Pod security context
+podSecurityContext:
+  runAsNonRoot: false
+  runAsUser: 0
+  fsGroup: 0
+
+# -- Container security context (imagem oficial: run_searxng usa setuid/setgid; mínimo necessário)
+securityContext:
+  allowPrivilegeEscalation: true
+  readOnlyRootFilesystem: false
+  capabilities:
+    drop:
+      - ALL
+    add:
+      - SETUID   # setuid(2) - supervisord/run_searxng
+      - SETGID   # setgid(2) / setgroups(2) - supervisord/run_searxng
+      - NET_RAW  # raw sockets - nmap e ferramentas de scan de rede
+
+# -- Resource limits and requests
+resources:
+  limits:
+    cpu: "4"
+    memory: 8Gi
+  requests:
+    cpu: "500m"
+    memory: 2Gi
+
+# -- Node selector
+nodeSelector: {}
+
+# -- Tolerations
+tolerations: []
+
+# -- Affinity
+affinity: {}
+
+# -- Environment variables (see docs/setup/helm.md for A0_SET_* and others)
+env: {}
+  # WEB_UI_HOST: "0.0.0.0"
+  # AUTH_LOGIN: "admin"
+  # AUTH_PASSWORD: "changeme"
+  # ALLOWED_ORIGINS: "https://your-domain.com"
+  # A0_SET_chat_model_provider: "openai"
+
+# -- Existing Secret name for sensitive env (AUTH_PASSWORD, FLASK_SECRET_KEY, API keys)
+# If set, secret keys are added as env vars; use with externalSecrets or manual Secret
+existingSecret: ""
+
+# -- Extra env from ConfigMap (optional)
+envFromConfigMap: ""
+
+# -- Extra env from Secret (optional)
+envFromSecret: ""
+
+# -- Pod annotations
+podAnnotations: {}
+
+# -- Pod labels
+podLabels: {}
+
+# -- ServiceAccount
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+
+# -- Liveness probe
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+  initialDelaySeconds: 60
+  periodSeconds: 30
+  timeoutSeconds: 10
+  failureThreshold: 3
+
+# -- Readiness probe
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3

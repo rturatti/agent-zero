@@ -1,0 +1,19 @@
+apiVersion: v2
+name: agent-zero
+description: Agent Zero - A dynamic, organic agentic framework that grows and learns with you
+type: application
+version: 0.1.0
+appVersion: "1.0"
+keywords:
+  - agent-zero
+  - agentic
+  - llm
+  - kubernetes
+home: https://agent-zero.ai
+icon: https://agent-zero.ai/favicon.ico
+sources:
+  - https://github.com/agent0ai/agent-zero
+maintainers:
+  - name: Agent Zero Team
+    url: https://github.com/agent0ai
+kubeVersion: ">=1.21.0"

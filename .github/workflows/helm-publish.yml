@@ -1,0 +1,56 @@
+# Publica o Helm chart do Agent Zero no repositório GitHub Pages.
+# - Em push para a branch padrão com alterações em helm/: empacota e publica novas versões.
+# - Configure GitHub Pages com source = branch gh-pages, pasta / (root).
+# Ver: https://github.com/helm/chart-releaser-action
+
+name: Publish Helm Chart
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'helm/agent-zero/**'
+      - '.github/workflows/helm-publish.yml'
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Helm
+        run: |
+          helm version
+          helm dependency update helm/agent-zero || true
+
+      - name: Run Chart Releaser
+        uses: helm/chart-releaser-action@v1.6.0
+        with:
+          charts_dir: helm
+          skip_existing: true
+        env:
+          CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Coloca artifacthub-repo.yml na raiz de gh-pages para o Artifact Hub (Verified publisher)
+      - name: Deploy artifacthub-repo.yml to gh-pages
+        if: hashFiles('helm/artifacthub-repo.yml') != ''
+        run: |
+          cp helm/artifacthub-repo.yml /tmp/artifacthub-repo.yml
+          git fetch origin gh-pages:gh-pages 2>/dev/null || true
+          git checkout gh-pages 2>/dev/null || git checkout -b gh-pages
+          cp /tmp/artifacthub-repo.yml .
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+          git add artifacthub-repo.yml
+          git diff --staged --quiet || (git commit -m "chore: update artifacthub-repo.yml" && git push origin gh-pages)
+          git checkout -
