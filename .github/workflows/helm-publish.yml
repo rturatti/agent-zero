@@ -10,6 +10,7 @@ on:
     branches:
       - main
       - master
+      - feat/add-helmchart
     paths:
       - 'helm/agent-zero/**'
       - '.github/workflows/helm-publish.yml'
