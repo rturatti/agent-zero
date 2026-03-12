@@ -74,3 +74,24 @@ jobs:
           git add artifacthub-repo.yml
           git diff --staged --quiet || (git commit -m "chore: update artifacthub-repo.yml" && git push origin gh-pages)
           git checkout "${{ github.ref_name }}"
+
+      - name: Post Helm repo URL to summary
+        run: |
+          OWNER="${GITHUB_REPOSITORY%%/*}"
+          REPO="${GITHUB_REPOSITORY#*/}"
+          REPO_URL="https://${OWNER}.github.io/${REPO}"
+          {
+            echo "## Helm chart published"
+            echo ""
+            echo "| Link | URL |"
+            echo "|------|-----|"
+            echo "| **Repositório Helm** | [$REPO_URL]($REPO_URL) |"
+            echo "| **index.yaml** | [$REPO_URL/index.yaml]($REPO_URL/index.yaml) |"
+            echo ""
+            echo "### Como usar"
+            echo '```bash'
+            echo "helm repo add agent-zero $REPO_URL"
+            echo "helm repo update"
+            echo "helm install agent-zero agent-zero/agent-zero"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
