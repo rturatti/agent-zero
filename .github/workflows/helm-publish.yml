@@ -29,13 +29,27 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Cria o branch gh-pages se não existir (chart-releaser exige que exista)
+      - name: Ensure gh-pages branch exists
+        run: |
+          git fetch origin gh-pages 2>/dev/null || true
+          if ! git rev-parse --verify origin/gh-pages >/dev/null 2>&1; then
+            git checkout --orphan gh-pages
+            git reset --hard
+            printf 'apiVersion: v1\nentries: {}\ngenerated: "%s"\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > index.yaml
+            git add index.yaml
+            git commit -m "chore: initialize gh-pages for Helm chart repo"
+            git push origin gh-pages
+            git checkout -
+          fi
+
       - name: Configure Helm
         run: |
           helm version
           helm dependency update helm/agent-zero || true
 
       - name: Run Chart Releaser
-        uses: helm/chart-releaser-action@v1.6.0
+        uses: helm/chart-releaser-action@v1.7.0
         with:
           charts_dir: helm
           skip_existing: true
