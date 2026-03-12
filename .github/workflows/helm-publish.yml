@@ -45,7 +45,7 @@ jobs:
             git add index.yaml
             git commit -m "chore: initialize gh-pages for Helm chart repo"
             git push origin gh-pages
-            git checkout -
+            git checkout "${{ github.ref_name }}"
           fi
 
       - name: Configure Helm
@@ -73,4 +73,4 @@ jobs:
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
           git add artifacthub-repo.yml
           git diff --staged --quiet || (git commit -m "chore: update artifacthub-repo.yml" && git push origin gh-pages)
-          git checkout -
+          git checkout "${{ github.ref_name }}"
